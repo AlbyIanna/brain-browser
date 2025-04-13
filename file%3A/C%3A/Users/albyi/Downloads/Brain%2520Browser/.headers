@@ -1,0 +1,15 @@
+[
+  {
+    "applyTo": "file:///C:/Users/albyi/Downloads/Brai Browser/brainBrowser.js",
+    "headers": [
+      {
+        "name": "Access-Control-Allow-Origin",
+        "value": "*"
+      },
+      {
+        "name": "access-control-allow-origin",
+        "value": "*"
+      }
+    ]
+  }
+]

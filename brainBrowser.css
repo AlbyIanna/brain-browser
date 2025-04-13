@@ -1,0 +1,26 @@
+.neuron {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    position: absolute;
+    cursor: pointer;
+    transition: transform 0.2s, background-color 0.2s;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+}
+
+.neuron:not(.visited) {
+    background-color: #888;
+    box-shadow: none;
+}
+
+.neuron.visited {
+    background-color: #ff7700;
+    box-shadow: none;
+}
+
+.neuron.active {
+    transform: translate(-50%, -50%) scale(1.3);
+    box-shadow: none;
+    z-index: 20;
+} 

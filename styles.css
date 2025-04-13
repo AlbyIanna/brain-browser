@@ -1,0 +1,700 @@
+/* Global Styles */
+:root {
+    --brain-bg-color: #1A2A3A;
+    --brain-outline: #F8D0D0;
+    --neuron-active: #4A90E2;
+    --neuron-inactive: #9B51E0;
+    --neuron-current: #FF9800;
+    --neuron-hover: #00B8D4;
+    --synapse-color: #00B8D4;
+    --pulse-color: #FFFFFF;
+    --ui-bg: #2A3A4A;
+    --ui-text: #F5E8E0;
+    --highlight: #FF9800;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Arial', sans-serif;
+}
+
+body {
+    background-color: #0F1621;
+    color: var(--ui-text);
+    overflow: hidden;
+    height: 100vh;
+}
+
+.app-container {
+    display: flex;
+    height: 100vh;
+}
+
+/* Brain Visualization Area */
+.brain-container {
+    position: relative;
+    flex: 1;
+    background-color: var(--brain-bg-color);
+    overflow: hidden;
+}
+
+.brain-background {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    height: 70%;
+    background: radial-gradient(
+        ellipse at center,
+        rgba(248, 208, 208, 0.1) 0%,
+        rgba(248, 208, 208, 0.05) 50%,
+        rgba(248, 208, 208, 0) 70%
+    );
+    border: 1px solid rgba(248, 208, 208, 0.2);
+    border-radius: 50% / 60% 60% 40% 40%;
+    z-index: 1;
+}
+
+.neural-network {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    transform-origin: center center;
+}
+
+/* Neuron Styling */
+.neuron {
+    position: absolute;
+    width: 46px;
+    height: 54px;
+    transform: translate(-50%, -50%);
+    cursor: pointer;
+    z-index: 3;
+    transition: transform 0.3s ease;
+}
+
+.neuron-body {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+.neuron-inactive-svg,
+.neuron-active-svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    transition: opacity 0.3s ease;
+    filter: none;
+}
+
+.neuron-active-svg {
+    opacity: 0;
+}
+
+.neuron-inactive-svg {
+    opacity: 1;
+}
+
+.neuron.active .neuron-active-svg {
+    opacity: 1;
+}
+
+.neuron.active .neuron-inactive-svg {
+    opacity: 0;
+}
+
+.neuron.current {
+    z-index: 4;
+}
+
+.neuron.current::after {
+    content: none;
+    display: none;
+}
+
+.neuron:hover {
+    transform: translate(-50%, -50%) scale(1.1);
+}
+
+.neuron-label {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    font-size: 10px;
+    background: rgba(26, 42, 58, 0.7);
+    padding: 2px 5px;
+    border-radius: 10px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+}
+
+.neuron.active .neuron-label {
+    opacity: 1;
+    font-weight: bold;
+    background: rgba(42, 115, 204, 0.8);
+}
+
+.neuron:hover .neuron-label {
+    opacity: 1;
+}
+
+/* Synapse Styling */
+.synapse {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    overflow: visible;
+    pointer-events: none;
+}
+
+.synapse-path {
+    stroke: var(--synapse-color);
+    stroke-width: 3;
+    fill: none;
+    stroke-opacity: 0.8;
+    stroke-dasharray: 5 3;
+    animation: synapseFlow 30s linear infinite;
+}
+
+.pulse {
+    fill: var(--pulse-color);
+    opacity: 0.9;
+    r: 4;
+}
+
+/* Browser Interface */
+.browser-interface {
+    width: 40%;
+    background-color: var(--ui-bg);
+    display: flex;
+    flex-direction: column;
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+    height: 100%;
+}
+
+.tab-bar {
+    display: flex;
+    background-color: #243242;
+    overflow-x: auto;
+    height: 40px;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.tab {
+    padding: 10px 15px;
+    background-color: #314359;
+    margin-right: 1px;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    border-radius: 8px 8px 0 0;
+    max-width: 150px;
+    height: 36px;
+    margin-top: 4px;
+}
+
+.tab.active {
+    background-color: var(--ui-bg);
+    position: relative;
+}
+
+.tab-title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 120px;
+}
+
+.close-tab-btn {
+    margin-left: 8px;
+    background: none;
+    border: none;
+    color: var(--ui-text);
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.close-tab-btn:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.address-bar {
+    padding: 10px;
+    display: flex;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    flex-shrink: 0;
+}
+
+#url-input {
+    flex-grow: 1;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 20px 0 0 20px;
+    background-color: #3A4A5A;
+    color: var(--ui-text);
+}
+
+#go-btn {
+    padding: 8px 15px;
+    border: none;
+    background-color: var(--highlight);
+    color: #1A2A3A;
+    border-radius: 0 20px 20px 0;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.content-display {
+    flex: 1;
+    overflow-y: auto;
+    background-color: #FFFFFF;
+    color: #333333;
+    display: flex;
+    flex-direction: column;
+}
+
+.welcome-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    text-align: center;
+    color: #666;
+}
+
+.welcome-screen h1 {
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.page {
+    display: none;
+    height: 100%;
+}
+
+.page.active {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.page-content {
+    padding: 15px;
+    padding-bottom: 30px;
+    overflow-y: auto;
+}
+
+/* Page styling */
+.page-title {
+    margin-bottom: 15px;
+    font-size: 24px;
+}
+
+.page-body {
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+.page-body p {
+    margin-bottom: 15px;
+}
+
+.page-body ul {
+    margin-left: 20px;
+    margin-bottom: 15px;
+}
+
+.page-body li {
+    margin-bottom: 8px;
+}
+
+/* Iframe for web browsing */
+.iframe-container {
+    width: 100%;
+    height: 100%;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.web-iframe {
+    width: 100%;
+    height: 100%;
+    min-height: 500px;
+    border: none;
+    flex-grow: 1;
+}
+
+/* Page navigation links */
+.page-body a {
+    display: inline-block;
+    margin: 5px 0;
+    padding: 3px 0;
+    color: #4A90E2;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.page-body a:hover {
+    text-decoration: underline;
+}
+
+/* Controls */
+.controls {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    z-index: 10;
+    display: flex;
+    gap: 10px;
+}
+
+.control-btn {
+    background-color: rgba(42, 58, 74, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: var(--ui-text);
+    padding: 8px 15px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.control-btn:hover {
+    background-color: rgba(74, 144, 226, 0.6);
+}
+
+/* Animations */
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 5px rgba(155, 81, 224, 0.3);
+        transform: scale(0.95);
+    }
+    100% {
+        box-shadow: 0 0 15px rgba(155, 81, 224, 0.5);
+        transform: scale(1);
+    }
+}
+
+@keyframes activePulse {
+    0% {
+        box-shadow: 0 0 10px rgba(74, 144, 226, 0.5);
+        transform: scale(0.98);
+    }
+    100% {
+        box-shadow: 0 0 20px rgba(74, 144, 226, 0.8);
+        transform: scale(1.05);
+    }
+}
+
+@keyframes synapseFlow {
+    0% {
+        stroke-dashoffset: 40;
+    }
+    100% {
+        stroke-dashoffset: 0;
+    }
+}
+
+@keyframes pulseThroughSynapse {
+    0% {
+        offset-distance: 0%;
+        opacity: 0;
+        r: 2;
+    }
+    10% {
+        opacity: 1;
+        r: 4;
+    }
+    90% {
+        opacity: 1;
+        r: 4;
+    }
+    100% {
+        offset-distance: 100%;
+        opacity: 0;
+        r: 2;
+    }
+}
+
+@keyframes pulseCurrent {
+    0% {
+        box-shadow: none;
+    }
+    100% {
+        box-shadow: none;
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .app-container {
+        flex-direction: column;
+    }
+    
+    .brain-container, .browser-interface {
+        width: 100%;
+        height: 50vh;
+    }
+    
+    .browser-interface {
+        border-left: none;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+}
+
+/* Debug mode */
+.debug-mode .synapse {
+    z-index: 4; /* Bring to front for debugging */
+}
+
+.debug-mode .synapse-path {
+    stroke: red;
+    stroke-width: 4;
+    stroke-opacity: 1;
+    stroke-dasharray: none;
+}
+
+.synapse.highlight .synapse-path {
+    stroke: green;
+    stroke-width: 5;
+    stroke-opacity: 1;
+    animation: none;
+}
+
+.synapse.highlight .pulse {
+    fill: yellow;
+    r: 6;
+}
+
+.neuron.dragging {
+    z-index: 10; /* Bring to front while dragging */
+    cursor: grabbing;
+}
+
+.neuron.dragging .neuron-body {
+    opacity: 1;
+    box-shadow: 0 0 25px rgba(255, 152, 0, 0.9);
+    background: radial-gradient(circle at 30% 30%, var(--highlight), #d07000);
+    transform: scale(1.2);
+}
+
+.neuron.dragging .neuron-label {
+    opacity: 1;
+    background: rgba(255, 152, 0, 0.8);
+}
+
+/* Minimap */
+.minimap-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 200px;
+    height: 150px;
+    background: rgba(26, 42, 58, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    overflow: hidden;
+}
+
+.minimap {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-origin: top left;
+}
+
+.minimap-viewport {
+    position: absolute;
+    border: 2px solid var(--highlight);
+    background: rgba(255, 152, 0, 0.1);
+    pointer-events: none;
+}
+
+/* Minimap neuron dots */
+.minimap-neuron {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background-color: var(--neuron-inactive);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0.7;
+    z-index: 1;
+}
+
+.minimap-neuron.active {
+    background-color: var(--neuron-active);
+    opacity: 1;
+}
+
+.minimap-neuron.current {
+    box-shadow: none;
+    border: 2px solid var(--neuron-current);
+    z-index: 2;
+}
+
+/* Minimap synapse lines */
+.minimap-synapse {
+    position: absolute;
+    height: 1px;
+    background-color: var(--synapse-color);
+    transform-origin: 0 0;
+    opacity: 0.6;
+}
+
+/* Debug Panel */
+.debug-panel {
+    position: fixed;
+    top: 50px;
+    right: 20px;
+    width: 350px;
+    max-height: 80vh;
+    background-color: rgba(42, 58, 74, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    padding: 15px;
+    z-index: 1000;
+    overflow-y: auto;
+    color: var(--ui-text);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    font-size: 12px;
+}
+
+.debug-panel h3 {
+    margin: 0 0 10px 0;
+    padding-bottom: 5px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    color: #FF9800;
+}
+
+.debug-panel > div {
+    margin-bottom: 20px;
+}
+
+.config-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.config-controls label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.config-controls select,
+.config-controls input[type="range"] {
+    width: 150px;
+}
+
+.config-controls button {
+    margin-top: 10px;
+    padding: 5px 10px;
+    background-color: #FF9800;
+    color: #1A2A3A;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    align-self: flex-end;
+}
+
+.config-controls button:hover {
+    background-color: #FFA726;
+}
+
+#performance-data,
+#interaction-log {
+    font-family: monospace;
+    background-color: rgba(0, 0, 0, 0.2);
+    padding: 5px;
+    border-radius: 4px;
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+.log-entry {
+    margin-bottom: 5px;
+    padding: 2px 5px;
+    border-radius: 3px;
+    display: flex;
+    gap: 8px;
+}
+
+.log-entry.debug {
+    color: #64B5F6;
+}
+
+.log-entry.info {
+    color: #81C784;
+}
+
+.log-entry.warn {
+    color: #FFD54F;
+}
+
+.log-entry.error {
+    color: #E57373;
+}
+
+.log-entry .timestamp {
+    opacity: 0.7;
+}
+
+/* Context Menu */
+.context-menu {
+    position: fixed;
+    background-color: var(--ui-bg);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    padding: 5px 0;
+    min-width: 150px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    font-size: 14px;
+}
+
+.context-menu-item {
+    padding: 8px 15px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    color: var(--ui-text);
+}
+
+.context-menu-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.context-menu-item.danger {
+    color: #ff5252;
+}
+
+.context-menu-item.danger:hover {
+    background-color: rgba(255, 0, 0, 0.1);
+}

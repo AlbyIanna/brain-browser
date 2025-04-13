@@ -1,0 +1,58 @@
+sequenceDiagram
+    participant User
+    participant UI as UI Layer
+    participant Events as Event System
+    participant State as State Manager
+    participant Neural as Neural Model
+    participant Render as Render Engine
+    participant Storage as Local Storage
+    
+    Note over User,Storage: New Tab Flow
+    User->>UI: Open New Tab
+    UI->>Events: emit(NEW_TAB_EVENT)
+    Events->>State: updateState({action: 'NEW_TAB'})
+    State->>Neural: createNeuron()
+    Neural->>State: updateState({neurons: [...updated]})
+    State->>Render: renderUpdatedState()
+    Render->>UI: updateVisualElements()
+    Neural->>Storage: persistNetworkState()
+    
+    Note over User,Storage: Navigation Flow
+    User->>UI: Click Link in Page
+    UI->>Events: emit(NAVIGATION_EVENT, {from, to})
+    Events->>State: updateState({action: 'NAVIGATE', from, to})
+    State->>Neural: createSynapse(from, to)
+    Neural->>Neural: createNeuronIfNotExists(to)
+    Neural->>State: updateState({synapses: [...updated]})
+    State->>Render: renderUpdatedState()
+    Render->>UI: animateSynapseCreation(from, to)
+    Render->>UI: updateVisualElements()
+    Neural->>Storage: persistNetworkState()
+    
+    Note over User,Storage: Tab Selection Flow
+    User->>UI: Click Neuron
+    UI->>Events: emit(SELECT_NEURON_EVENT, neuronId)
+    Events->>State: updateState({action: 'SELECT_NEURON', id})
+    State->>Neural: activateNeuron(id)
+    Neural->>State: updateState({activeNeuron: id})
+    State->>Render: renderUpdatedState()
+    Render->>UI: highlightActiveNeuron(id)
+    Render->>UI: updateTabContent(id)
+    
+    Note over User,Storage: Zoom/Pan Interaction
+    User->>UI: Zoom/Pan Gesture
+    UI->>Events: emit(VIEW_CHANGE_EVENT, {scale, position})
+    Events->>State: updateState({view: {scale, position}})
+    State->>Render: updateViewport(scale, position)
+    Render->>UI: transformVisualElements(scale, position)
+    
+    Note over User,Storage: Close Tab Flow
+    User->>UI: Close Tab
+    UI->>Events: emit(CLOSE_TAB_EVENT, tabId)
+    Events->>State: updateState({action: 'CLOSE_TAB', id})
+    State->>Neural: removeNeuron(id)
+    Neural->>State: updateState({neurons: [...updated]})
+    State->>Render: renderUpdatedState()
+    Render->>UI: animateNeuronRemoval(id)
+    Render->>UI: updateVisualElements()
+    Neural->>Storage: persistNetworkState()

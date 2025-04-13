@@ -1,0 +1,63 @@
+flowchart TD
+    subgraph "Frontend"
+        UI["UI Component Layer"]
+        VIS["Visualization Engine"]
+        EV["Event System"]
+        ST["State Management"]
+        
+        UI --> VIS
+        UI <--> EV
+        EV <--> ST
+        VIS <--> ST
+    end
+
+    subgraph "Core Services"
+        NM["Neural Model"]
+        HS["History Service"]
+        TS["Tab Service"]
+        PS["Path Service"]
+        NS["Navigation Service"]
+        
+        NM <--> HS
+        NM <--> TS
+        NM <--> PS
+        NM <--> NS
+    end
+    
+    subgraph "Data Layer"
+        MDS["Mock Data Service"]
+        LSS["Local Storage Service"]
+        
+        MDS --> LSS
+    end
+    
+    subgraph "Rendering Pipeline"
+        RP["Render Processor"]
+        AM["Animation Manager"]
+        PH["Physics Handler"]
+        
+        RP --> AM
+        RP --> PH
+    end
+    
+    ST <--> NM
+    VIS --> RP
+    NM <--> MDS
+    
+    subgraph "Component Architecture"
+        direction TB
+        BC["Brain Container"]
+        NU["Neuron Component"]
+        SY["Synapse Component"]
+        TB["Tab Browser Component"]
+        CP["Control Panel"]
+        
+        BC --> NU
+        BC --> SY
+        BC --> TB
+        BC --> CP
+    end
+    
+    UI --> BC
+
+    class UI,VIS,EV,ST,NM,HS,TS,PS,NS,MDS,LSS,RP,AM,PH,BC,NU,SY,TB,CP node
