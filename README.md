@@ -2,6 +2,10 @@
 
 Brain Browser is an interactive web application that visualizes your web browsing as a neural network. Each website you visit becomes a neuron in your brain, and connections (synapses) form as you navigate between pages.
 
+## Live Demo
+
+Check out the live demo at [https://friendly-crisp-f955f0.netlify.app](https://friendly-crisp-f955f0.netlify.app)
+
 ## Features
 
 - **Neural Network Visualization**: See your browsing history visualized as an interactive neural network
