@@ -13,15 +13,15 @@ class BrainBrowser {
         // Configuration settings
         this.config = {
             // Neuron appearance
-            neuronSize: 46,
+            neuronSize: 60,
             neuronGrowAnimation: true,
             neuronGrowDuration: 500,
             
             // Synapse appearance
-            synapseWidth: 3,
-            synapseOpacity: 0.8,
-            synapseAnimationDuration: 30, // seconds
-            pulseAnimationDuration: 2, // seconds
+            synapseWidth: 2,
+            synapseOpacity: 0.5,
+            synapseAnimationDuration: 8, // seconds
+            pulseAnimationDuration: 1.5, // seconds
             
             // Clustering
             clusteringEnabled: true,
@@ -32,17 +32,39 @@ class BrainBrowser {
             maxVisibleSynapses: 200, // future feature for optimization
             
             // Logging
-            logLevel: 'info', // 'debug', 'info', 'warn', 'error', 'none'
+            logLevel: 'debug', // 'debug', 'info', 'warn', 'error', 'none'
             trackUserInteractions: true,
-            performanceMonitoring: true
+            performanceMonitoring: true,
+            trackFrameRate: true,
+            neuronAnimation: 'pulse', // none, pulse, glow, etc.
+            showDebugInfo: false,
         };
+        
+        // Known sites that block iframe embedding with X-Frame-Options
+        this.knownXFrameBlockedSites = [
+            'google.com',
+            'facebook.com',
+            'instagram.com',
+            'twitter.com',
+            'netflix.com',
+            'amazon.com',
+            'youtube.com',
+            'linkedin.com',
+            'github.com',
+            'microsoft.com',
+            'apple.com',
+            'yahoo.com',
+            'bankofamerica.com',
+            'chase.com',
+            'wellsfargo.com',
+            'paypal.com'
+        ];
         
         // Performance metrics
         this.performanceMetrics = {
             frameRates: [],
             renderTimes: [],
-            interactionLatency: [],
-            lastFrameTime: performance.now()
+            interactionLatencies: []
         };
         
         // User interaction log
@@ -156,9 +178,9 @@ class BrainBrowser {
                 this.performanceMetrics.renderTimes.shift();
             }
         } else if (type === 'interactionLatency') {
-            this.performanceMetrics.interactionLatency.push(value);
-            if (this.performanceMetrics.interactionLatency.length > 100) {
-                this.performanceMetrics.interactionLatency.shift();
+            this.performanceMetrics.interactionLatencies.push(value);
+            if (this.performanceMetrics.interactionLatencies.length > 100) {
+                this.performanceMetrics.interactionLatencies.shift();
             }
         }
     }
@@ -1456,7 +1478,38 @@ class BrainBrowser {
             
             // Set iframe src to the URL
             const iframe = iframeContainer.querySelector('.web-iframe');
-            iframe.src = url;
+            
+            // Clear any existing error message
+            const existingError = iframeContainer.querySelector('.iframe-error-message');
+            if (existingError) {
+                existingError.remove();
+            }
+            
+            // Check if this is a known site that blocks iframe embedding
+            const isKnownBlockedSite = this.knownXFrameBlockedSites.some(blockedDomain => 
+                domain.includes(blockedDomain) || domain.endsWith('.' + blockedDomain)
+            );
+            
+            if (isKnownBlockedSite) {
+                // Immediately show error message without trying to load
+                this.log('info', `Skipping iframe load for known X-Frame-Options site: ${domain}`);
+                this.handleIframeError(iframeContainer, domain, url);
+            } else {
+                // Add iframe load error handling
+                iframe.onerror = () => this.handleIframeError(iframeContainer, domain, url);
+                iframe.onload = () => {
+                    // Check if we can access the iframe content
+                    try {
+                        // This will throw an error if the iframe can't be accessed due to X-Frame-Options
+                        iframe.contentWindow.location.href;
+                    } catch (e) {
+                        this.handleIframeError(iframeContainer, domain, url);
+                    }
+                };
+                
+                // Set the iframe src
+                iframe.src = url;
+            }
         }
         
         // Update URL input
@@ -1472,6 +1525,38 @@ class BrainBrowser {
         
         // Save state to local storage
         this.saveToLocalStorage();
+    }
+    
+    /**
+     * Handle iframe loading errors, particularly X-Frame-Options restrictions
+     */
+    handleIframeError(container, domain, url) {
+        const iframe = container.querySelector('.web-iframe');
+        
+        // Hide the iframe
+        iframe.style.display = 'none';
+        
+        // Remove existing error message if any
+        const existingError = container.querySelector('.iframe-error-message');
+        if (existingError) {
+            existingError.remove();
+        }
+        
+        // Create error message
+        const errorMessage = document.createElement('div');
+        errorMessage.className = 'iframe-error-message';
+        errorMessage.innerHTML = `
+            <div class="error-icon">⚠️</div>
+            <h3>Cannot Display ${domain}</h3>
+            <p>This website cannot be displayed in an iframe due to security restrictions set by the site (X-Frame-Options).</p>
+            <p>This is a common security measure used by sites like Google, Facebook, and many others to prevent clickjacking attacks.</p>
+            <div class="error-actions">
+                <a href="${url}" target="_blank" class="open-button">Open in New Tab</a>
+            </div>
+        `;
+        
+        // Add error message to container
+        container.appendChild(errorMessage);
     }
     
     /**
@@ -1785,8 +1870,8 @@ class BrainBrowser {
                         const avgRenderTime = this.performanceMetrics.renderTimes.length > 0 ?
                             this.performanceMetrics.renderTimes.reduce((a, b) => a + b, 0) / this.performanceMetrics.renderTimes.length : 0;
                         
-                        const avgLatency = this.performanceMetrics.interactionLatency.length > 0 ?
-                            this.performanceMetrics.interactionLatency.reduce((a, b) => a + b, 0) / this.performanceMetrics.interactionLatency.length : 0;
+                        const avgLatency = this.performanceMetrics.interactionLatencies.length > 0 ?
+                            this.performanceMetrics.interactionLatencies.reduce((a, b) => a + b, 0) / this.performanceMetrics.interactionLatencies.length : 0;
                         
                         perfDataElem.innerHTML = `
                             <p>Average FPS: ${avgFps.toFixed(2)}</p>
@@ -1825,8 +1910,8 @@ class BrainBrowser {
             const avgRenderTime = this.performanceMetrics.renderTimes.length > 0 ?
                 this.performanceMetrics.renderTimes.reduce((a, b) => a + b, 0) / this.performanceMetrics.renderTimes.length : 0;
             
-            const avgLatency = this.performanceMetrics.interactionLatency.length > 0 ?
-                this.performanceMetrics.interactionLatency.reduce((a, b) => a + b, 0) / this.performanceMetrics.interactionLatency.length : 0;
+            const avgLatency = this.performanceMetrics.interactionLatencies.length > 0 ?
+                this.performanceMetrics.interactionLatencies.reduce((a, b) => a + b, 0) / this.performanceMetrics.interactionLatencies.length : 0;
             
             // Log performance metrics
             console.log('Performance Metrics:');

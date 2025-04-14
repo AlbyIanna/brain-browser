@@ -348,6 +348,54 @@ body {
     flex-grow: 1;
 }
 
+/* Iframe Error Message */
+.iframe-error-message {
+    width: 100%;
+    padding: 30px;
+    text-align: center;
+    background: #f8f9fa;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    margin: 40px auto;
+    max-width: 600px;
+}
+
+.iframe-error-message .error-icon {
+    font-size: 36px;
+    margin-bottom: 15px;
+}
+
+.iframe-error-message h3 {
+    font-size: 20px;
+    margin-bottom: 15px;
+    color: #e74c3c;
+}
+
+.iframe-error-message p {
+    color: #666;
+    margin-bottom: 15px;
+    line-height: 1.5;
+}
+
+.iframe-error-message .error-actions {
+    margin-top: 25px;
+}
+
+.iframe-error-message .open-button {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #3498db;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: bold;
+    transition: background-color 0.2s;
+}
+
+.iframe-error-message .open-button:hover {
+    background-color: #2980b9;
+}
+
 /* Page navigation links */
 .page-body a {
     display: inline-block;
